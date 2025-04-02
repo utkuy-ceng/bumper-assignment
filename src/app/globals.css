@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 249, 249, 249;
+  --primary-color: #ff733c;
+  --header-black: #1b1b1b;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+@layer components {
+  .layout {
+    @apply w-11/12 mx-auto;
+  }
+
+  /* Typography styles */
+  .typography-title {
+    @apply font-oswald font-bold text-5xl sm:text-6xl md:text-7xl lg:text-[91px] leading-tight md:leading-tight lg:leading-[100px] uppercase tracking-normal;
+  }
+
+  .typography-description {
+    @apply font-sans font-normal text-lg sm:text-xl md:text-[21px] lg:text-[28px] leading-relaxed md:leading-[32px] lg:leading-[38px] tracking-normal;
+  }
+
+  .typography-small {
+    @apply font-sans font-normal text-sm md:text-base lg:text-[19px] leading-normal md:leading-[24px] lg:leading-[28px] tracking-normal;
+  }
+}
+
+.font-oswald {
+  font-family: "Oswald", sans-serif;
+}
