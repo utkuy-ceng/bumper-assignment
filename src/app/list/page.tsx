@@ -1,9 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Header from "@/components/header";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSearch,
+  faMobileAlt,
+  faEnvelope,
+  faMapMarkerAlt,
+} from "@fortawesome/free-solid-svg-icons";
+// Import partners data
+import partnersData from "../../../data/partners.json";
 
-type Partner = {
+interface Partner {
+  id: string;
   name: string;
   company: string;
   mobile_phone: string;
@@ -11,162 +22,206 @@ type Partner = {
   postcode: string;
   pay_later: boolean;
   pay_now: boolean;
-};
+  createdAt?: string;
+}
 
 export default function ListPage() {
-  const [partners, setPartners] = useState<Partner[]>([]);
+  const [dealerships, setDealerships] = useState<Partner[]>([]);
+  const [filteredDealerships, setFilteredDealerships] = useState<Partner[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [displayCount, setDisplayCount] = useState(3);
 
   useEffect(() => {
-    const fetchPartners = async () => {
+    // Load data from localStorage and partners.json
+    const loadDealerships = () => {
       try {
-        const response = await fetch("/api/partners");
+        // Start with the partners from the JSON file
+        let allPartners: Partner[] = [...partnersData];
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch partners");
+        // Add partners from localStorage if they exist
+        const storedData = localStorage.getItem("registeredDealerships");
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+
+          // Add local storage data
+          allPartners = [...allPartners, ...parsedData];
         }
 
-        const data = await response.json();
-        setPartners(data);
+        // Sort by creation date (newest first)
+        allPartners.sort((a, b) => {
+          return (
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+          );
+        });
+
+        // Create a composite key for each dealership to catch functional duplicates
+        const seen = new Set<string>();
+        const uniquePartners: Partner[] = [];
+
+        for (const partner of allPartners) {
+          // Create a composite key using multiple fields
+          const key = `${partner.email_address.toLowerCase()}-${
+            partner.mobile_phone
+          }-${partner.company.toLowerCase()}`;
+
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniquePartners.push(partner);
+          }
+        }
+
+        setDealerships(uniquePartners);
+        setFilteredDealerships(uniquePartners);
       } catch (error) {
-        console.error("Error fetching partners:", error);
-        setError("Failed to load partners. Please try again later.");
+        console.error("Error loading dealership data:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPartners();
+    loadDealerships();
   }, []);
 
-  const filteredPartners = partners.filter((partner) =>
-    partner.company.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter dealerships based on search term
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+
+    if (!term.trim()) {
+      setFilteredDealerships(dealerships);
+      return;
+    }
+
+    const filtered = dealerships.filter(
+      (dealer) =>
+        dealer.company.toLowerCase().includes(term) ||
+        dealer.name.toLowerCase().includes(term) ||
+        dealer.email_address.toLowerCase().includes(term) ||
+        dealer.mobile_phone.includes(term)
+    );
+    setFilteredDealerships(filtered);
+  };
+
+  const loadMore = () => {
+    setDisplayCount((prev) => prev + 3);
+  };
+
+  const displayedDealerships = filteredDealerships.slice(0, displayCount);
+  const hasMore = filteredDealerships.length > displayCount;
 
   return (
-    <main className="flex flex-col items-center min-h-screen p-4 bg-gray-100">
-      <div className="w-full max-w-5xl">
-        <div className="bg-blue-900 p-4 text-white rounded-t-lg">
-          <h1 className="text-2xl font-bold text-center mb-4">
-            Interested Dealerships
-          </h1>
+    <main className="min-h-screen bg-[#5A698C]">
+      <Header />
+      <div className="form-bg py-8 md:py-16 min-h-[calc(100vh-72px)]">
+        <div
+          className="w-full md:w-[60%] min-w-[320px] mx-auto px-4 mt-24 md:mt-4 pb-16"
+          style={{ maxWidth: "none" }}
+        >
+          {/* Header placeholder to push content down - only visible on desktop */}
+          <div className="hidden md:block h-[100px] w-full" />
 
-          <div className="mb-4">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <svg
-                  className="w-4 h-4 text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20"
+          <div className="text-white mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+              Interested Dealerships
+            </h1>
+          </div>
+
+          {/* Search Card */}
+          <div className="form-container mb-4">
+            <div className="p-4 md:p-6">
+              <div className="input-error-container">
+                <label
+                  htmlFor="search-company"
+                  className="flex items-center mb-2"
                 >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                  />
-                </svg>
+                  <span className="text-[#FF733C] mr-2">
+                    <FontAwesomeIcon icon={faSearch} className="h-4 w-4" />
+                  </span>
+                  <span className="font-medium">Search Company</span>
+                </label>
+                <input
+                  id="search-company"
+                  type="text"
+                  placeholder="Start typing name, company, phone or email for search"
+                  className="form-input"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                />
               </div>
-              <input
-                type="text"
-                className="block w-full p-2 pl-10 text-gray-900 border border-gray-300 rounded-lg bg-white"
-                placeholder="Search Company..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
             </div>
           </div>
-        </div>
 
-        {isLoading ? (
-          <div className="bg-white p-6 rounded-b-lg shadow-md text-center">
-            <p>Loading partners...</p>
-          </div>
-        ) : error ? (
-          <div className="bg-white p-6 rounded-b-lg shadow-md text-center">
-            <p className="text-red-500">{error}</p>
-            <button
-              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-              onClick={() => window.location.reload()}
-            >
-              Retry
-            </button>
-          </div>
-        ) : filteredPartners.length === 0 ? (
-          <div className="bg-white p-6 rounded-b-lg shadow-md text-center">
-            {searchTerm ? (
-              <p>No companies found matching "{searchTerm}"</p>
-            ) : (
-              <div>
-                <p>No partners registered yet.</p>
-                <Link
-                  href="/form"
-                  className="mt-4 inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-full font-medium"
-                >
-                  Register a Partner →
-                </Link>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="bg-white rounded-b-lg shadow-md overflow-hidden">
-            {filteredPartners.map((partner, index) => (
-              <div
-                key={index}
-                className="p-4 border-b border-gray-200 last:border-b-0"
+          {isLoading ? (
+            <div className="py-8 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--primary-color)] mx-auto"></div>
+              <p className="mt-4 text-white">Loading dealerships...</p>
+            </div>
+          ) : filteredDealerships.length === 0 ? (
+            <div className="form-container p-6 text-center">
+              <p className="text-gray-600 mb-4">
+                {searchTerm
+                  ? `No dealerships found matching "${searchTerm}"`
+                  : "No dealerships have been registered yet."}
+              </p>
+              <Link
+                href="/form"
+                className="btn-green py-2 px-6 rounded-full inline-block"
               >
-                <h2 className="text-xl font-semibold">{partner.company}</h2>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  <div>
-                    <p className="text-sm text-gray-500">Mobile phone number</p>
-                    <p>{partner.mobile_phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Email address</p>
-                    <p>{partner.email_address}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Postcode</p>
-                    <p>{partner.postcode}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Services</p>
-                    <p>
-                      {[
-                        partner.pay_later ? "PayLater" : null,
-                        partner.pay_now ? "PayNow" : null,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </p>
+                Register New
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {displayedDealerships.map((dealer) => (
+                <div key={dealer.id} className="form-container">
+                  <div className="p-6 md:p-8">
+                    <h3 className="font-bold text-xl">{dealer.name}</h3>
+
+                    <div className="divide-y divide-gray-200 mt-5">
+                      <div className="py-4 flex justify-between items-center">
+                        <span className="text-gray-700">Company</span>
+                        <span className="text-right">{dealer.company}</span>
+                      </div>
+
+                      <div className="py-4 flex justify-between items-center">
+                        <span className="text-gray-700">
+                          Mobile phone number
+                        </span>
+                        <span className="text-right">
+                          {dealer.mobile_phone}
+                        </span>
+                      </div>
+
+                      <div className="py-4 flex justify-between items-center">
+                        <span className="text-gray-700">Email address</span>
+                        <span className="text-right">
+                          {dealer.email_address}
+                        </span>
+                      </div>
+
+                      <div className="py-4 flex justify-between items-center">
+                        <span className="text-gray-700">Postcode</span>
+                        <span className="text-right">{dealer.postcode}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            <div className="p-4 text-center">
-              <button
-                className="text-blue-600 hover:underline"
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              >
-                Load More...
-              </button>
+              {hasMore && (
+                <div className="text-center py-4">
+                  <button
+                    onClick={loadMore}
+                    className="bg-[#3A4A6C] text-white hover:bg-[#2A3A5C] transition-colors py-2 px-8 rounded-md"
+                  >
+                    Load More...
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
-        )}
-
-        <div className="mt-6 text-center">
-          <Link
-            href="/form"
-            className="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-full font-medium"
-          >
-            Register New Partner →
-          </Link>
+          )}
         </div>
       </div>
     </main>
