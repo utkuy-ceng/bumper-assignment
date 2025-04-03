@@ -7,6 +7,10 @@
   --background-rgb: 249, 249, 249;
   --primary-color: #ff733c;
   --header-black: #1b1b1b;
+  --bumper-green: #32be50;
+  --bumper-dark-green: #32be50;
+  --form-bg: #5a698c;
+  --input-border: #545454;
 }
 
 body {
@@ -31,8 +35,110 @@ body {
   .typography-small {
     @apply font-sans font-normal text-sm md:text-base lg:text-[19px] leading-normal md:leading-[24px] lg:leading-[28px] tracking-normal;
   }
+
+  /* Form styles */
+  .btn-green {
+    @apply bg-[#32BE50] text-black font-medium transition-colors duration-200 flex items-center justify-center;
+  }
+
+  .btn-green:hover {
+    @apply bg-[#32BE50] text-white;
+  }
+
+  .btn-green:active {
+    @apply bg-black text-white;
+  }
+
+  .form-bg {
+    @apply bg-[var(--form-bg)];
+  }
+
+  /* Form input styles based on Figma design */
+  .form-input {
+    @apply w-full px-4 py-3 border border-[var(--input-border)] rounded-[27px] focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] bg-white transition-colors;
+  }
+
+  /* Input success state - only shown when not focused */
+  .form-input.valid:not(:focus) {
+    @apply border-[var(--bumper-green)];
+  }
+
+  /* Input error state */
+  .input-error-container {
+    @apply relative;
+  }
+
+  .input-error-icon {
+    @apply absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500 font-bold;
+  }
+
+  /* Success icon - only shown when input is not focused */
+  .input-success-icon {
+    @apply absolute right-4 top-1/2 transform -translate-y-1/2 text-[var(--bumper-green)];
+  }
+
+  /* Form container style */
+  .form-container {
+    @apply bg-white rounded-[40px] shadow-md overflow-hidden border border-[#1B1B1B];
+  }
+
+  /* List page search input */
+  .search-company-input {
+    @apply w-full pl-10 pr-4 py-3 border border-gray-200 focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)] bg-white rounded-[27px];
+  }
+
+  /* Service button styles */
+  .service-btn {
+    @apply flex items-center border border-[var(--input-border)] rounded-full px-4 py-3 transition-all hover:bg-gray-50 justify-between min-w-[120px];
+  }
+
+  /* Desktop-specific service button styles */
+  @media (min-width: 768px) {
+    .service-btn {
+      @apply min-w-[130px] py-3;
+    }
+  }
+
+  .service-btn-icon {
+    @apply flex items-center justify-center ml-2 h-5 w-5 text-gray-500 font-medium;
+  }
+
+  .service-btn.selected {
+    @apply bg-black text-white border-black transition-all duration-300;
+  }
+
+  .service-btn.selected .service-btn-icon {
+    @apply text-white;
+  }
+
+  .service-btn.error {
+    @apply border-red-500;
+  }
+
+  .service-btn.error .service-btn-icon {
+    @apply text-red-500;
+  }
 }
 
 .font-oswald {
   font-family: "Oswald", sans-serif;
+}
+
+/* Animation for checkmark */
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.checkmark-animation {
+  animation: checkmark 0.3s ease-in-out forwards;
 }

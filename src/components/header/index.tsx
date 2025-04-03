@@ -59,7 +59,7 @@ export default function Header() {
           <Link href="/" className="flex items-center">
             <div className="relative h-10 w-32 bg-[var(--header-black)] text-white rounded-full flex items-center justify-center p-1">
               <Image
-                src="/images/bumper-logo.svg"
+                src="/images/bumper-main.svg"
                 alt="Bumper"
                 fill
                 sizes="(max-width: 768px) 128px, 128px"
