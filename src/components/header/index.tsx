@@ -1,80 +1,119 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import PartnerLogin from "./partner_login";
-import Register from "./register";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRightToBracket } from "@fortawesome/free-solid-svg-icons";
 
 export default function Header() {
-  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("business");
+  const businessTabRef = useRef<HTMLButtonElement>(null);
+  const driversTabRef = useRef<HTMLButtonElement>(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({
+    left: 0,
+    width: 0,
+  });
+  // We'll keep the button text as "Register" permanently
+  const buttonText = "Register";
+
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+    // Would typically navigate to different routes here
+    // router.push(`/${tab}`);
+  };
+
+  // Update indicator position when tab changes
+  useEffect(() => {
+    const updateIndicator = () => {
+      const activeRef =
+        activeTab === "business" ? businessTabRef : driversTabRef;
+      if (activeRef.current) {
+        setIndicatorStyle({
+          left: activeRef.current.offsetLeft,
+          width: activeRef.current.offsetWidth,
+        });
+      }
+    };
+
+    updateIndicator();
+    window.addEventListener("resize", updateIndicator);
+    return () => window.removeEventListener("resize", updateIndicator);
+  }, [activeTab]);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50">
-      {/* Black navigation bar */}
-      <div className="bg-[var(--header-black)] h-12 text-white">
-        <div className="layout flex justify-between items-center h-full">
-          {/* Left side nav items */}
-          <div className="flex items-center space-x-6">
-            <Link
-              href="/business"
-              className="relative"
-              onMouseEnter={() => setActiveTab("business")}
-              onMouseLeave={() => setActiveTab(null)}
-            >
-              For business
-              {activeTab === "business" && (
-                <div className="absolute -bottom-1 left-0 w-full h-1 bg-[var(--primary-color)]"></div>
-              )}
-            </Link>
-            <Link
-              href="/drivers"
-              className="relative"
-              onMouseEnter={() => setActiveTab("drivers")}
-              onMouseLeave={() => setActiveTab(null)}
-            >
-              For drivers
-              {activeTab === "drivers" && (
-                <div className="absolute -bottom-1 left-0 w-full h-1 bg-[var(--primary-color)]"></div>
-              )}
-            </Link>
-          </div>
+    <header className="fixed top-0 left-0 right-0 z-50 w-full">
+      {/* Main Container */}
+      <div className="relative h-[120px]">
+        {/* Orange Background - Full height to ensure it shows through black bar corners */}
+        <div className="w-full h-full absolute top-0 left-0 right-0 bg-[#FF733C] border-b border-l border-r border-[#1B1B1B] rounded-b-[16px]">
+          {/* Orange section content */}
+          <div className="absolute bottom-0 left-0 right-0 h-[67px]">
+            <div className="layout flex justify-between items-center h-full">
+              <div className="flex items-center">
+                <Image
+                  src="/images/bumper-main.svg"
+                  alt="BUMPER"
+                  width={140}
+                  height={36}
+                  priority
+                />
+                <div className="ml-2 font-medium text-black">
+                  {activeTab === "business" ? "for business" : "for drivers"}
+                </div>
+              </div>
 
-          {/* Right side nav items */}
-          <div className="flex items-center space-x-6">
-            <PartnerLogin />
-            <Register
-              isActive={activeTab === "register"}
-              onMouseEnter={() => setActiveTab("register")}
-              onMouseLeave={() => setActiveTab(null)}
-            />
+              <Link
+                href="/form"
+                className="text-black font-medium py-[6px] px-6 rounded-[4px] bg-[#32BE50] border border-[#1B1B1B] hover:bg-green-600 transition"
+              >
+                {buttonText}
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Orange section */}
-      <div className="bg-[var(--primary-color)] h-[64px] rounded-b-3xl border-x-2 border-b-2 border-[var(--header-black)]">
-        <div className="layout flex items-center justify-between h-full text-black">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <div className="relative h-10 w-32 bg-[var(--header-black)] text-white rounded-full flex items-center justify-center p-1">
-              <Image
-                src="/images/bumper-main.svg"
-                alt="Bumper"
-                fill
-                sizes="(max-width: 768px) 128px, 128px"
-                style={{ objectFit: "contain" }}
-              />
+        {/* Black Navigation Bar on top */}
+        <div className="w-full absolute top-0 left-0 right-0 rounded-b-3xl h-[53px] text-white z-10 bg-[#1B1B1B]">
+          <div className="layout flex justify-between items-center h-full relative">
+            <div className="flex space-x-4">
+              <button
+                ref={businessTabRef}
+                className={`h-full py-2 px-6 font-medium text-white ${
+                  activeTab === "business" ? "font-bold" : ""
+                }`}
+                onClick={() => handleTabClick("business")}
+              >
+                For business
+              </button>
+              <button
+                ref={driversTabRef}
+                className={`h-full py-2 px-6 font-medium text-white ${
+                  activeTab === "drivers" ? "font-bold" : ""
+                }`}
+                onClick={() => handleTabClick("drivers")}
+              >
+                For drivers
+              </button>
             </div>
-          </Link>
 
-          {/* CTA button */}
-          <div>
+            {/* Sliding indicator positioned at bottom of black bar with rounded top corners */}
+            <div
+              className="absolute bottom-0 h-1.5 transition-all duration-300 ease-in-out rounded-t-[4px] bg-[#FF733C]"
+              style={{
+                left: `${indicatorStyle.left}px`,
+                width: `${indicatorStyle.width}px`,
+              }}
+            />
+
             <Link
-              href="/join"
-              className="bg-[#00C853] hover:bg-[#00A846] text-black font-medium py-2 px-4 rounded transition-colors"
+              href="/login"
+              className="flex items-center border border-white py-1 px-4 rounded-[4px] hover:bg-gray-800 transition text-white"
             >
-              Join Now
+              <span className="mr-2">Partner login</span>
+              <FontAwesomeIcon icon={faArrowRightToBracket} className="h-4" />
             </Link>
           </div>
         </div>
