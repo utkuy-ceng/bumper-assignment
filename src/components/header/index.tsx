@@ -18,6 +18,11 @@ export default function Header() {
   });
   // We'll keep the button text as "Register" permanently
   const buttonText = "Register";
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
@@ -44,7 +49,13 @@ export default function Header() {
   }, [activeTab]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full">
+    <header
+      className={
+        isMounted
+          ? "fixed top-0 left-0 right-0 z-50 w-full"
+          : "absolute top-0 left-0 right-0 z-50 w-full"
+      }
+    >
       {/* Main Container */}
       <div className="relative h-[120px]">
         {/* Orange Background - Full height to ensure it shows through black bar corners */}
@@ -108,13 +119,16 @@ export default function Header() {
               }}
             />
 
-            <Link
+            {/* Partner login button - icon only on mobile, text+icon on desktop */}
+            <a
               href="/login"
               className="flex items-center border border-white py-1 px-4 rounded-[4px] hover:bg-gray-800 transition text-white"
             >
-              <span className="mr-2">Partner login</span>
+              <span className={isMounted ? "hidden md:inline mr-2" : "mr-2"}>
+                Partner login
+              </span>
               <FontAwesomeIcon icon={faArrowRightToBracket} className="h-4" />
-            </Link>
+            </a>
           </div>
         </div>
       </div>

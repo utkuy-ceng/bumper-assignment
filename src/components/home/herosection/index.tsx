@@ -6,11 +6,10 @@ import CTA from "./cta";
 export default function HeroSection() {
   return (
     <section
-      className="relative w-full bg-cover bg-center"
+      className="relative w-full bg-cover bg-center h-[65vh] md:h-[85vh]"
       style={{
         backgroundImage:
           'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url("/images/hero-bg.jpg")',
-        height: "85vh",
         minHeight: "600px",
       }}
     >
@@ -40,17 +39,17 @@ export default function HeroSection() {
             </h1>
 
             {/* Description with updated typography */}
-            <p className="text-white mb-3 md:mb-4 lg:mb-5 w-full md:w-[70%] lg:w-[45%] typography-description">
+            <p className="text-white mb-5 md:mb-4 lg:mb-5 w-full md:w-[70%] lg:w-[45%] typography-description">
               Join our network of 3,000+ garages and dealerships who already
               offer Bumper to their customers.
             </p>
 
             {/* CTA section */}
-            <CTA className="mb-6 md:mb-8 lg:mb-10 w-full md:w-[70%] lg:w-[45%]" />
+            <CTA className="mb-1 md:mb-8 lg:mb-10 w-full md:w-[70%] lg:w-[45%]" />
           </div>
 
           {/* Spacer to push content to the top */}
-          <div className="flex-grow"></div>
+          <div className="flex-grow-0 md:flex-grow"></div>
         </div>
       </div>
     </section>

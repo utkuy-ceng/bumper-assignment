@@ -8,7 +8,7 @@ interface LoginProps {
 
 export default function Login({ className = "" }: LoginProps) {
   return (
-    <div className={`typography-small ${className}`}>
+    <div className={`typography-description md:typography-small ${className}`}>
       <span className="text-white">Already registered? </span>
       <Link href="/login" className="text-[#32BE50]">
         Login

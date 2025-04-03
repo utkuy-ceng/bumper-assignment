@@ -27,6 +27,21 @@ export default function ContentSection() {
               </h2>
             </div>
 
+            {/* Mobile-only iPhone mockup */}
+            <div className="relative w-full mb-8 block lg:hidden">
+              <div className="relative w-full max-w-[300px] mx-auto aspect-[9/16]">
+                <Image
+                  src="/images/iphone-mockup.png"
+                  alt="Bumper PayLater interface on a mobile phone"
+                  fill
+                  sizes="(max-width: 768px) 100vw"
+                  style={{ objectFit: "contain" }}
+                  priority
+                  className="scale-100"
+                />
+              </div>
+            </div>
+
             {/* Intro paragraph */}
             <p className="text-gray-800 text-lg md:text-xl lg:text-[21px] leading-relaxed md:leading-[32px] lg:leading-[32px] mb-8">
               Give customers more flexibility at checkout, online and in store.
@@ -82,14 +97,14 @@ export default function ContentSection() {
             </div>
           </div>
 
-          {/* Image Side */}
-          <div className="w-full lg:w-1/2 flex justify-center items-center">
+          {/* Image Side - Desktop only */}
+          <div className="w-full lg:w-1/2 hidden lg:flex justify-center items-center">
             <div className="relative w-full max-w-[450px] aspect-[9/16] lg:mr-0">
               <Image
                 src="/images/iphone-mockup.png"
                 alt="Bumper PayLater interface on a mobile phone"
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 1200px) 50vw, 33vw"
                 style={{ objectFit: "contain" }}
                 priority
                 className="scale-100"

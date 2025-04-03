@@ -25,7 +25,7 @@ body {
 
   /* Typography styles */
   .typography-title {
-    @apply font-oswald font-bold text-5xl sm:text-6xl md:text-7xl lg:text-[91px] leading-tight md:leading-tight lg:leading-[100px] uppercase tracking-normal;
+    @apply font-oswald font-bold text-4xl sm:text-5xl md:text-7xl lg:text-[91px] leading-tight md:leading-tight lg:leading-[100px] uppercase tracking-normal;
   }
 
   .typography-description {
