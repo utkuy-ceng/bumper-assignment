@@ -130,12 +130,45 @@ export default function FormSection() {
 
   const validateField = (name: keyof FormData, value: string | boolean) => {
     try {
-      baseFormSchema.shape[name].parse(value);
+      // We need to handle the specific fields directly rather than using shape
+      // because formSchema is a ZodEffects due to the .refine() call
+      if (name === "name") {
+        z.string().min(1, "Name is required").parse(value);
+      } else if (name === "company") {
+        z.string().min(1, "Company is required").parse(value);
+      } else if (name === "mobile_phone") {
+        z.string()
+          .min(1, "Mobile phone is required")
+          .regex(
+            /^(\+44|0|0044)[0-9]{10,11}$/,
+            "Mobile phone must be in UK format (e.g., 07123456789)"
+          )
+          .parse(value);
+      } else if (name === "email_address") {
+        z.string()
+          .min(1, "Email is required")
+          .email("Invalid email")
+          .parse(value);
+      } else if (name === "postcode") {
+        z.string()
+          .min(1, "Postcode is required")
+          .max(30, "Postcode must be less than 30 characters")
+          .regex(
+            /^[a-zA-Z0-9\s]*$/,
+            "Postcode must contain only alphanumeric characters"
+          )
+          .parse(value);
+      } else if (name === "pay_later" || name === "pay_now") {
+        z.boolean().parse(value);
+      }
+
+      // If validation succeeded, remove any previous errors
       setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
+
       // Mark field as valid if it's a non-empty string or a checkbox that's checked
       if (
         (typeof value === "string" && value.trim() !== "") ||
@@ -147,11 +180,20 @@ export default function FormSection() {
         }));
       }
       return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+    } catch (error: unknown) {
+      // First check if error is a ZodError
+      if (!(error instanceof z.ZodError)) {
+        return false;
+      }
+
+      // Create a properly typed variable that TypeScript can understand
+      const zodError: z.ZodError = error;
+
+      // Now we can safely access properties with the correct type
+      if (zodError.errors && zodError.errors.length > 0) {
         setErrors((prev) => ({
           ...prev,
-          [name]: error.errors[0].message,
+          [name]: zodError.errors[0].message,
         }));
         setValidFields((prev) => {
           const newValid = { ...prev };
@@ -179,9 +221,18 @@ export default function FormSection() {
       });
 
       return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const serviceError = error.errors.find((e) =>
+    } catch (error: unknown) {
+      // First check if error is a ZodError
+      if (!(error instanceof z.ZodError)) {
+        return false;
+      }
+
+      // Create a properly typed variable that TypeScript can understand
+      const zodError: z.ZodError = error;
+
+      // Now we can safely access properties with the correct type
+      if (zodError.errors && zodError.errors.length > 0) {
+        const serviceError = zodError.errors.find((e) =>
           e.path.includes("services")
         );
         if (serviceError) {
