@@ -119,16 +119,22 @@ export default function Header() {
               }}
             />
 
-            {/* Partner login button - icon only on mobile, text+icon on desktop */}
-            <a
+            {/* Mobile version - icon only */}
+            <Link
               href="/login"
-              className="flex items-center border border-white py-1 px-4 rounded-[4px] hover:bg-gray-800 transition text-white"
+              className="md:hidden flex items-center border border-white py-1 px-2 rounded-[4px] hover:bg-gray-800 transition text-white"
             >
-              <span className={isMounted ? "hidden md:inline mr-2" : "mr-2"}>
-                Partner login
-              </span>
               <FontAwesomeIcon icon={faArrowRightToBracket} className="h-4" />
-            </a>
+            </Link>
+
+            {/* Desktop version - text + icon */}
+            <Link
+              href="/login"
+              className="hidden md:flex items-center border border-white py-1 px-4 rounded-[4px] hover:bg-gray-800 transition text-white"
+            >
+              <span className="mr-2">Partner login</span>
+              <FontAwesomeIcon icon={faArrowRightToBracket} className="h-4" />
+            </Link>
           </div>
         </div>
       </div>
